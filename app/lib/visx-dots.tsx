@@ -71,32 +71,32 @@ export default withTooltip<DotsProps, PointsRange>(
     );
 
     // event handlers
-    const handleMouseMove = useCallback(
-      (event: React.MouseEvent | React.TouchEvent) => {
-        if (tooltipTimeout) clearTimeout(tooltipTimeout);
-        if (!svgRef.current) return;
+    // const handleMouseMove = useCallback(
+    //   (event: React.MouseEvent | React.TouchEvent) => {
+    //     if (tooltipTimeout) clearTimeout(tooltipTimeout);
+    //     if (!svgRef.current) return;
 
-        // find the nearest polygon to the current mouse position
-        const point = localPoint(svgRef.current, event);
-        if (!point) return;
-        const neighborRadius = 100;
-        const closest = voronoiLayout.find(point.x, point.y, neighborRadius);
-        if (closest) {
-          showTooltip({
-            tooltipLeft: xScale(x(closest.data)),
-            tooltipTop: yScale(y(closest.data)),
-            tooltipData: closest.data,
-          });
-        }
-      },
-      [xScale, yScale, showTooltip, voronoiLayout],
-    );
+    //     // find the nearest polygon to the current mouse position
+    //     const point = localPoint(svgRef.current, event);
+    //     if (!point) return;
+    //     const neighborRadius = 100;
+    //     const closest = voronoiLayout.find(point.x, point.y, neighborRadius);
+    //     if (closest) {
+    //       showTooltip({
+    //         tooltipLeft: xScale(x(closest.data)),
+    //         tooltipTop: yScale(y(closest.data)),
+    //         tooltipData: closest.data,
+    //       });
+    //     }
+    //   },
+    //   [xScale, yScale, showTooltip, voronoiLayout],
+    // );
 
-    const handleMouseLeave = useCallback(() => {
-      tooltipTimeout = window.setTimeout(() => {
-        hideTooltip();
-      }, 300);
-    }, [hideTooltip]);
+    // const handleMouseLeave = useCallback(() => {
+    //   tooltipTimeout = window.setTimeout(() => {
+    //     hideTooltip();
+    //   }, 300);
+    // }, [hideTooltip]);
 
     return (
       <div>
@@ -106,12 +106,12 @@ export default withTooltip<DotsProps, PointsRange>(
           <rect
             width={width}
             height={height}
-            rx={14}
+            // rx={14}
             fill="url(#dots-pink)"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            onTouchMove={handleMouseMove}
-            onTouchEnd={handleMouseLeave}
+            // onMouseMove={handleMouseMove}
+            // onMouseLeave={handleMouseLeave}
+            // onTouchMove={handleMouseMove}
+            // onTouchEnd={handleMouseLeave}
           />
           <Group pointerEvents="none">
             {points.map((point, i) => (
@@ -124,7 +124,7 @@ export default withTooltip<DotsProps, PointsRange>(
                 fill={tooltipData === point ? 'white' : '#f6c431'}
               />
             ))}
-            {showVoronoi &&
+            {/* {showVoronoi &&
               voronoiLayout
                 .polygons()
                 .map((polygon, i) => (
@@ -137,10 +137,10 @@ export default withTooltip<DotsProps, PointsRange>(
                     strokeOpacity={0.2}
                     fillOpacity={tooltipData === polygon.data ? 0.5 : 0}
                   />
-                ))}
+                ))} */}
           </Group>
         </svg>
-        {tooltipOpen && tooltipData && tooltipLeft != null && tooltipTop != null && (
+        {/* {tooltipOpen && tooltipData && tooltipLeft != null && tooltipTop != null && (
           <Tooltip left={tooltipLeft + 10} top={tooltipTop + 10}>
             <div>
               <strong>x:</strong> {x(tooltipData)}
@@ -149,8 +149,8 @@ export default withTooltip<DotsProps, PointsRange>(
               <strong>y:</strong> {y(tooltipData)}
             </div>
           </Tooltip>
-        )}
-        {showControls && (
+        )} */}
+        {/* {showControls && (
           <div>
             <label style={{ fontSize: 12 }}>
               <input
@@ -161,7 +161,7 @@ export default withTooltip<DotsProps, PointsRange>(
               &nbsp;Show voronoi point map
             </label>
           </div>
-        )}
+        )} */}
       </div>
     );
   },

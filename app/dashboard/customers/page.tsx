@@ -11,30 +11,17 @@ import withTooltip from '@/app/lib/visx-dots';
 import { DotsProps } from '@/app/lib/visx-dots';
 
 export default function Page() {
-    const cardData = fetchCardData();
-    const dotsProps: DotsProps = {width: 20, height: 20};
+    // const cardData = fetchCardData();
+    const dotsProps: DotsProps = {width: 500, height: 500};
     // const dots = await withTooltip(dotsProps);
 
     return (
         <main>
             <h1 className={'${lusitana.className} mb-4 text-xl md:text-2xl'}>
-                Dashboard
+                Scatter
             </h1>
             <div>
-                <p>{withTooltip(dotsProps)}</p>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <Suspense fallback={<CardsSkeleton />}>
-                    <CardWrapper />
-                </Suspense>
-            </div>
-            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-                <Suspense fallback={<RevenueChartSkeleton />}>
-                    <RevenueChart />
-                </Suspense>
-                <Suspense fallback={<LatestInvoicesSkeleton />}>
-                    <LatestInvoices />
-                </Suspense>
+                {withTooltip(dotsProps)}
             </div>
         </main>
     );
