@@ -13,9 +13,11 @@ import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withToolti
 import { voronoi, VoronoiPolygon } from '@visx/voronoi';
 import { localPoint } from '@visx/event';
 import { AxisLeft, AxisBottom } from '@visx/axis';
-import { GridRows, GridColumns } from '@visx/grid';
+import { Grid, GridRows, GridColumns } from '@visx/grid';
+import { unstable_noStore as noStore } from 'next/cache';
+import { randomNormal } from 'd3-random';
 
-const points: PointsRange[] = genRandomNormalPoints(600, /* seed= */ 0.5).filter((_, i) => i < 600);
+const points: PointsRange[] = genRandomNormalPoints(10).filter((_, i) => i < 20);
 
 const x = (d: PointsRange) => d[0];
 const y = (d: PointsRange) => d[1];
@@ -43,6 +45,9 @@ export default withTooltip<DotsProps, PointsRange>(
     tooltipTop,
   }: DotsProps & WithTooltipProvidedProps<PointsRange>) => {
     if (width < 10) return null;
+
+    noStore();
+
     const [showVoronoi, setShowVoronoi] = useState(showControls);
     const svgRef = useRef<SVGSVGElement>(null);
     const xScale = useMemo(
@@ -77,6 +82,37 @@ export default withTooltip<DotsProps, PointsRange>(
   // bounds
     const xMax = width - defaultMargin.left - defaultMargin.right;
     const yMax = height - defaultMargin.top - defaultMargin.bottom;
+
+    function linearRegression() {
+      const sumXTimesY = points.reduce((next, pair) => {
+        return next + (Math.abs(pair[0]) * Math.abs(pair[1]));
+      }, 0);
+      const sumX = points.reduce((next, pair) => {
+        return next + Math.abs(pair[0]);
+      }, 0);
+      const sumY = points.reduce((next, pair) => {
+        return next + Math.abs(pair[1]);
+      }, 0);
+      const sumXSquared = points.reduce((next, pair) => {
+        return next + (pair[0]^2);
+      }, 0);
+      console.log("sumXTimesY = " + sumXTimesY);
+      console.log("sumX = " + sumX);
+      console.log("sumY = " + sumY);
+      console.log("sumXSquared = " + sumXSquared);
+      const m = ((points.length * sumXTimesY) - (sumX * sumY)) / ((points.length * sumXSquared) - (sumX)^2);
+      console.log("m = " + m);
+
+      const b = (sumY - (m * sumX)) / points.length;
+      console.log("b = " + b);
+
+      console.log("yHat = " + m + "x + " + b);
+      console.log(points);
+
+      return [[0, b], [2, (m * 2) + b]];
+    }
+
+    const regressionPoints = linearRegression();
 
     // event handlers
     // const handleMouseMove = useCallback(
@@ -122,18 +158,31 @@ export default withTooltip<DotsProps, PointsRange>(
             // onTouchEnd={handleMouseLeave}
           />
           <Group pointerEvents="none">
-            <GridRows scale={scaleLinear<number>({domain:[0, xMax], nice: true})} width={xMax} height={yMax} stroke="#e0e0e0" />
-            <GridColumns scale={scaleLinear<number>({domain:[0, xMax], nice: true})} width={xMax} height={yMax} stroke="#e0e0e0" />
-            <line x1={xMax} x2={xMax} y1={0} y2={yMax} stroke="#e0e0e0" />
-            <AxisBottom top={yMax} scale={scaleLinear<number>({domain:[0, xMax], nice: true})} numTicks={width > 520 ? 10 : 5} />
-            <AxisLeft scale={scaleLinear<number>({domain:[0, xMax], nice: true})} />
+            <Grid xScale={scaleLinear<number>({domain:[0, 10], range: [0, 500], nice: true})}
+              yScale={scaleLinear<number>({domain:[0, 10], range: [0, 500], nice: true})}
+              width={500}
+              height={500}
+              strokeWidth={2}
+              stroke="#444444" />
+            {/* <GridRows scale={scaleLinear<number>({domain:[0, xMax], nice: true})} width={xMax} height={yMax} stroke="#e0e0e0" />
+            <GridColumns scale={scaleLinear<number>({domain:[0, xMax], nice: true})} width={xMax} height={yMax} stroke="#e0e0e0" /> */}
+            <line 
+              x1={0} 
+              x2={500} 
+              y1={yScale(regressionPoints[0][1])} 
+              y2={yScale(regressionPoints[1][1])} 
+              stroke="#e0e0e0" 
+            />
+            {/* <AxisBottom top={yMax} scale={scaleLinear<number>({domain:[0, xMax], nice: true})} numTicks={width > 520 ? 10 : 5} />
+            <AxisLeft scale={scaleLinear<number>({domain:[0, xMax], nice: true})} /> */}
             {points.map((point, i) => (
               <Circle
-                key={`point-${point[0]}-${i}`}
+                key={`point-${Math.abs(point[0])}-${i}`}
                 className="dot"
-                cx={xScale(x(point))}
-                cy={yScale(y(point))}
-                r={i % 3 === 0 ? 2 : 3}
+                cx={xScale(Math.abs(x(point)))}
+                cy={yScale(Math.abs(y(point)))}
+                r={5}
+                // r={i % 3 === 0 ? 2 : 3}
                 fill={tooltipData === point ? 'white' : '#f6c431'}
               />
             ))}
