@@ -12,6 +12,8 @@ import { withTooltip, Tooltip } from '@visx/tooltip';
 import { WithTooltipProvidedProps } from '@visx/tooltip/lib/enhancers/withTooltip';
 import { voronoi, VoronoiPolygon } from '@visx/voronoi';
 import { localPoint } from '@visx/event';
+import { AxisLeft, AxisBottom } from '@visx/axis';
+import { GridRows, GridColumns } from '@visx/grid';
 
 const points: PointsRange[] = genRandomNormalPoints(600, /* seed= */ 0.5).filter((_, i) => i < 600);
 
@@ -25,6 +27,8 @@ export type DotsProps = {
 };
 
 let tooltipTimeout: number;
+
+const defaultMargin = { top: 40, right: 30, bottom: 50, left: 40 };
 
 export default withTooltip<DotsProps, PointsRange>(
   ({
@@ -70,6 +74,10 @@ export default withTooltip<DotsProps, PointsRange>(
       [width, height, xScale, yScale],
     );
 
+  // bounds
+    const xMax = width - defaultMargin.left - defaultMargin.right;
+    const yMax = height - defaultMargin.top - defaultMargin.bottom;
+
     // event handlers
     // const handleMouseMove = useCallback(
     //   (event: React.MouseEvent | React.TouchEvent) => {
@@ -114,6 +122,11 @@ export default withTooltip<DotsProps, PointsRange>(
             // onTouchEnd={handleMouseLeave}
           />
           <Group pointerEvents="none">
+            <GridRows scale={scaleLinear<number>({domain:[0, xMax], nice: true})} width={xMax} height={yMax} stroke="#e0e0e0" />
+            <GridColumns scale={scaleLinear<number>({domain:[0, xMax], nice: true})} width={xMax} height={yMax} stroke="#e0e0e0" />
+            <line x1={xMax} x2={xMax} y1={0} y2={yMax} stroke="#e0e0e0" />
+            <AxisBottom top={yMax} scale={scaleLinear<number>({domain:[0, xMax], nice: true})} numTicks={width > 520 ? 10 : 5} />
+            <AxisLeft scale={scaleLinear<number>({domain:[0, xMax], nice: true})} />
             {points.map((point, i) => (
               <Circle
                 key={`point-${point[0]}-${i}`}
